@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  html-check:
+    name: HTML をチェックする
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: すべてのページに <title> があるか
+        run: |
+          for f in $(find . -name '*.html'); do
+            grep -q '<title>' "$f" || { echo "::error file=$f::<title> がありません"; exit 1; }
+          done
+          echo "OK: すべての HTML に <title> があります"
+
+      - name: 一覧からのリンク切れがないか
+        run: |
+          for href in $(grep -o 'href="pets/[^"]*"' index.html | sed 's/href="//;s/"//'); do
+            test -f "$href" || { echo "::error::リンク切れ: $href"; exit 1; }
+          done
+          echo "OK: 一覧のリンクはすべて存在します"
