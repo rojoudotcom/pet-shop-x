@@ -7,9 +7,13 @@ jobs:
   deploy:
     name: サイトを公開する
     runs-on: ubuntu-latest
-    environment: github-pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}   # 実行画面に公開 URL を出す
     steps:
       - uses: actions/checkout@v7
       - uses: actions/upload-pages-artifact@v5
         with: { path: . }
-      - uses: actions/deploy-pages@v5   # 公開する
+      - id: deployment
+        uses: actions/deploy-pages@v5   # 公開する
+      - run: echo "公開 URL ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
